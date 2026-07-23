@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>¯\_(ツ)_/¯</title>
+<meta name="description" content="automation++ — infinite shrugs, on demand.">
+<style>
+  :root {
+    --bg: #f8fafc;
+    --fg: #0f172a;
+    --muted: #64748b;
+    --accent: #4f46e5;
+    --card: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f172a;
+      --fg: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #818cf8;
+      --card: #1e293b;
+    }
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { height: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    padding: 2rem;
+    text-align: center;
+  }
+  #shrug {
+    font-family: ui-monospace, "Noto Sans JP", "Noto Sans CJK JP", monospace, sans-serif;
+    font-size: clamp(2rem, 9vw, 6rem);
+    line-height: 1.3;
+    cursor: pointer;
+    user-select: none;
+    padding: 1rem 2rem;
+    border-radius: 1rem;
+    transition: transform 120ms ease;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  #shrug:hover { transform: scale(1.04); }
+  #shrug:active { transform: scale(0.97); }
+  .hint { color: var(--muted); font-size: 0.95rem; }
+  button {
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 0.6rem;
+    font-size: 1.05rem;
+    padding: 0.75rem 1.6rem;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button:hover { filter: brightness(1.1); }
+  #toast {
+    position: fixed;
+    bottom: 4.5rem;
+    left: 50%;
+    transform: translateX(-50%) translateY(1rem);
+    background: var(--card);
+    color: var(--fg);
+    border: 1px solid var(--muted);
+    border-radius: 0.6rem;
+    padding: 0.6rem 1.2rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease, transform 200ms ease;
+  }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  footer {
+    position: fixed;
+    bottom: 1rem;
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+  footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+  <div id="shrug" title="click to copy">¯\_(ツ)_/¯</div>
+  <button id="another" type="button">another shrug</button>
+  <p class="hint">click the shrug to copy it &middot; press space for a new one</p>
+  <div id="toast" role="status"></div>
+  <footer><a href="https://github.com/AutomationPlusPlus">automation++</a> &middot; nobody knows anything</footer>
+
+<script>
+  const faces = [
+    "ツ", "ツ", "ツ",
+    "°_o", "•_•", "・_・", "ಠ_ಠ", "ʘ‿ʘ", "¬‿¬",
+    "´・ω・`", "⊙_☉", "o_O", "ㅇ_ㅇ", "ー_ー", "◉_◉",
+    "＠_＠", "¬_¬", "˘_˘", "≖_≖", "･ω･",
+  ];
+  const arms = [
+    f => `¯\\_(${f})_/¯`,
+    f => `¯\\_(${f})_/¯`,
+    f => `┐(${f})┌`,
+    f => `╮(${f})╭`,
+    f => `乁(${f})ㄏ`,
+    f => `ヽ(${f})ノ`,
+    f => `┐(${f})┌`,
+    f => `╰(${f})╯`,
+    f => `~\\_(${f})_/~`,
+    f => `¯\\(${f})/¯`,
+  ];
+  const shrugEl = document.getElementById("shrug");
+  const toastEl = document.getElementById("toast");
+  const pick = a => a[Math.floor(Math.random() * a.length)];
+  let last = shrugEl.textContent;
+
+  function newShrug() {
+    let s;
+    do { s = pick(arms)(pick(faces)); } while (s === last);
+    last = s;
+    shrugEl.textContent = s;
+  }
+
+  let toastTimer;
+  function toast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove("show"), 1600);
+  }
+
+  shrugEl.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(shrugEl.textContent);
+      toast("copied " + shrugEl.textContent);
+    } catch {
+      toast("couldn't copy ¯\\_(ツ)_/¯");
+    }
+  });
+  document.getElementById("another").addEventListener("click", newShrug);
+  document.addEventListener("keydown", e => {
+    if (e.code === "Space") { e.preventDefault(); newShrug(); }
+  });
+</script>
+</body>
+</html>
